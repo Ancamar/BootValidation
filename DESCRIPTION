@@ -1,7 +1,7 @@
 Package: BootValidation
 Type: Package
 Title: Adjusting for Optimism in 'glmnet' Regression using Bootstrapping
-Version: 0.1.3
+Version: 0.1.4
 Author: Antonio Jose Canada Martinez
 Maintainer: Antonio Jose Canada Martinez <ancamar2@gmail.com>
 Description: Main objective of a predictive model is to provide accurated predictions of a new observations. 
@@ -9,7 +9,7 @@ Description: Main objective of a predictive model is to provide accurated predic
              data where p >> n, is not reasonable applying internal validation using data-splitting. Under this 
              background a good method to assessing model performance is applying internal bootstrap validation 
              (Harrell Jr, Frank E (2015) <doi:10.1007/978-1-4757-3462-1>.) This package provides bootstrap validation
-             for the linear, logistic and cox 'glmnet' models.
+             for the linear, logistic, multinomial and cox 'glmnet' models.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
