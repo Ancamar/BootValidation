@@ -22,7 +22,7 @@ vboot(glmnet_fit, x, y, s, nfolds = 5, B = 200, cv_replicates = 100, n_cores = m
 Main objective of a predictive model is to provide accurated predictions of a new observations. Unfortunately we don´t know how well the model performs. In addition, at the current era of omic data where *p >> n* is not reasonable applying internal validation using data-splitting. Under this background a good method to assessing model performance is applying internal bootstrap validation.                                                                                             
 The followed approach is described in Harrel et al. (1996) and on the fantastic [blog](http://thestatsgeek.com/2014/10/04/adjusting-for-optimismoverfitting-in-measures-of-predictive-ability-using-bootstrapping/) written by Jonathan Bartlett. The bootstrap validation procedure consists of the following steps.
 
-   1. Fit the model to original data, and estimate the measure of predictive accuracy *A* (for example AUC from the ROC curve in case of binary outcome or ![R^2](r2.png) for numeric outcome). Denote this as *A{orig}*
+   1. Fit the model to original data, and estimate the measure of predictive accuracy *A* (for example AUC from the ROC curve in case of binary outcome or R^2 for numeric outcome). Denote this as *A{orig}*
    2. Repeat this process almost B = 100 or 200 times
       *   Make a bootstrap sample from the original data
       *   Fit the model to the bootstrap sample, and estimate *A* using the fitted model on the bootstrap sample. Denote this as *A_b*
