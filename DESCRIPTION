@@ -1,7 +1,7 @@
 Package: BootValidation
 Type: Package
 Title: Adjusting for Optimism in 'glmnet' Regression using Bootstrapping
-Version: 0.1.4
+Version: 0.1.5
 Author: Antonio Jose Canada Martinez
 Maintainer: Antonio Jose Canada Martinez <ancamar2@gmail.com>
 Description: Main objective of a predictive model is to provide accurated predictions of a new observations. 
@@ -17,6 +17,6 @@ Imports: glmnet,
          pbapply,
          pROC,
          parallel,
-         survAUC
-RdMacros: Rdpack
+         survival,
+         risksetROC
 RoxygenNote: 6.0.1

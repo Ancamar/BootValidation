@@ -4,7 +4,8 @@
 \alias{vboot.coxnet}
 \title{Internal bootstraping validation cox glmnet model}
 \usage{
-\method{vboot}{coxnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores)
+\method{vboot}{coxnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates,
+  n_cores = max(1, parallel::detectCores() - 1))
 }
 \arguments{
 \item{glmnet_fit}{Object from glmnet fit}

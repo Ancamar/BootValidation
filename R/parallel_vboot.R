@@ -15,7 +15,7 @@
 #' @importFrom stats median
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
 #' @export
-vboot.lognet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores){
+vboot.lognet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores = max(1, parallel::detectCores() - 1)){
     orig_predict <- glmnet::predict.glmnet(glmnet_fit, newx = x, s = s, type = "response")
     orig_auc <- pROC::roc(y, as.numeric(orig_predict))$auc
 
@@ -75,7 +75,7 @@ vboot.lognet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores)
 #' @importFrom stats median var
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
 #' @export
-vboot.elnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores){
+vboot.elnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores = max(1, parallel::detectCores() - 1)){
     orig_predict <- glmnet::predict.glmnet(glmnet_fit, newx = x, s=s, type = "response")
     orig_r2 <- 1 - (var(orig_predict - y) / var(y))
     # Create index to bootstrap
@@ -126,53 +126,91 @@ vboot.elnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores){
 #' @param cv_replicates Number of replicates for the cross-validation step
 #' @param n_cores number of cores to use in parallel. Default detectCores()-1
 #' @importFrom glmnet cv.glmnet glmnet predict.coxnet
-#' @importFrom survAUC AUC.cd
+#' @importFrom risksetROC CoxWeights IntegrateAUC
+#' @importFrom survival survfit Surv
 #' @importFrom pbapply pbreplicate
-#' @importFrom stats median var
+#' @importFrom stats median
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
 #' @export
-vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores){
-    times <- times <- seq(1,max(as.numeric(y)),1)
-    orig_predict <- glmnet::predict.coxnet(glmnet_fit, newx = x, s = s, type = "response")
-    orig_auc <- survAUC::AUC.cd(y,y, orig_predict, orig_predict, times)$iauc
+vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores = max(1, parallel::detectCores() - 1)){
+  if(class(y) %in% "Surv") stop("vboot requires a matrix with colums 'time' and 'status' as a response")
+  orig_predict <- glmnet::predict.coxnet(glmnet_fit, newx = x, s = s, type = "link")
+  surv.prob <- unique(survival::survfit(survival::Surv(y[,1], y[,2])~1)$surv)
+  utimes <- unique( y[,1][ y[,2] == 1 ])
+  utimes <- utimes[order(utimes)]
+  ## find AUC at unique failure times
+  AUC <- rep( NA, length(utimes) )
+  for( j in 1:length(utimes) )
+  {
+    out <- risksetROC::CoxWeights( orig_predict, y[,1], y[,2],utimes[j])
+    AUC[j] <- out$AUC
+  }
+  ## integrated AUC to get concordance measure
+  orig_auc <- risksetROC::IntegrateAUC( AUC, utimes, surv.prob, tmax=5000)
 
-    # Making index to bootstrap
-    bootstrap <- function(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds, B = B){
-        index <- sample(1:nrow(x), replace = TRUE)
-        xboot <- x[index, ]
-        yboot <- y[index]
+  # Making index to bootstrap
+  bootstrap <- function(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds, B = B){
+    index <- sample(1:nrow(x), replace = TRUE)
+    xboot <- x[index, ]
+    yboot <- y[index, ]
 
-        # Fit the model using bootstrap dataset
-        cv.glmnet_b <- pbapply::pbreplicate(cv_replicates, tryCatch(glmnet::cv.glmnet(xboot, yboot, alpha = glmnet_fit$call$alpha,
-                                                                           family = "cox", nfolds = nfolds)$lambda.1se, error = function(e) NA))
-        l = median(cv.glmnet_b, na.rm = TRUE)
-        boot_fit <- glmnet::glmnet(xboot, yboot, alpha = glmnet_fit$call$alpha, family = "cox")
-        boot_predict <- glmnet::predict.coxnet(boot_fit, newx = xboot, s = l, type = "response")
-        Cb_boot <- survAUC::AUC.cd(y, yboot,orig_predict, boot_predict, times)$iauc
+    # Fit the model using bootstrap dataset
+    cv.glmnet_b <- pbapply::pbreplicate(cv_replicates, tryCatch(glmnet::cv.glmnet(xboot, yboot, alpha = glmnet_fit$call$alpha,
+                                                                                  family = "cox", nfolds = nfolds)$lambda.1se, error = function(e) NA))
+    l = median(cv.glmnet_b, na.rm = TRUE)
+    boot_fit <- glmnet::glmnet(xboot, yboot, alpha = glmnet_fit$call$alpha, family = "cox")
+    boot_predict <- glmnet::predict.coxnet(boot_fit, newx = xboot, s = l, type = "link")
 
-        # fit bootstrap model to the original dataset
-        bootorig_predict <-  glmnet::predict.coxnet(boot_fit, newx = x, s = l, type = "response")
-        Cb_orig <- survAUC::AUC.cd(y, y, bootorig_predict, bootorig_predict, times)$iauc
-        return(list(Cb_boot = Cb_boot, Cb_orig = Cb_orig))
+    surv.probb <- unique(survival::survfit(survival::Surv(yboot[,1], yboot[,2])~1)$surv)
+    utimes <- unique( yboot[,1][ yboot[,2] == 1 ])
+    utimes <- utimes[order(utimes)]
+    ## find AUC at unique failure times
+    AUCb <- rep( NA, length(utimes) )
+    for( j in 1:length(utimes) )
+    {
+      out <- risksetROC::CoxWeights( boot_predict, yboot[,1], yboot[,2],utimes[j])
+      AUCb[j] <- out$AUC
     }
-    if(n_cores > 1){
-        cl <- parallel::makeCluster(n_cores)
-        parallel::clusterExport(cl, varlist = c("B", "x", "y", "glmnet_fit", "nfolds", "bootstrap"), envir = environment())
-        CBOOT <- parallel::parSapply(cl, 1:B, function(i) bootstrap(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds))
-        parallel::stopCluster(cl)
-        closeAllConnections()
-    }
-    else{
-        CBOOT <- suppressWarnings(pbapply::pbreplicate(B, bootstrap(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds)))
-    }
+    ## integrated AUC to get concordance measure
+    Cb_boot  <- risksetROC::IntegrateAUC( AUCb, utimes, surv.probb, tmax=5000)
 
-    # Optimist
-    O <- 10^-1 * sum(unlist(CBOOT[1, ]) - unlist(CBOOT[2, ]))
-    # Adjusted Optimist
-    Oadj <- orig_auc - O
-    output <- round(data.frame(Original_AUC = as.numeric(orig_auc), Optimism = O, Validated_AUC = Oadj), 3)
-    return(output)
+    # fit bootstrap model to the original dataset
+    bootorig_predict <-  glmnet::predict.coxnet(boot_fit, newx = x, s = l, type = "link")
+
+    surv.probc <- unique(survival::survfit(survival::Surv(yboot[,1], yboot[,2])~1)$surv)
+    utimes <- unique( yboot[,1][ yboot[,2] == 1 ])
+    utimes <- utimes[order(utimes)]
+    ## find AUC at unique failure times
+    AUCc <- rep( NA, length(utimes) )
+    for( j in 1:length(utimes) )
+    {
+      out <- risksetROC::CoxWeights( bootorig_predict, y[,1], y[,2],utimes[j])
+      AUCc[j] <- out$AUC
+    }
+    ## integrated AUC to get concordance measure
+    Cb_orig  <- risksetROC::IntegrateAUC( AUCc, utimes, surv.probc, tmax=5000)
+
+    return(list(Cb_boot = Cb_boot, Cb_orig = Cb_orig))
+  }
+  if(n_cores > 1){
+    cl <- parallel::makeCluster(n_cores)
+    parallel::clusterExport(cl, varlist = c("B", "x", "y", "glmnet_fit", "nfolds", "bootstrap"), envir = environment())
+    CBOOT <- parallel::parSapply(cl, 1:B, function(i) bootstrap(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds))
+    parallel::stopCluster(cl)
+    closeAllConnections()
+  }
+  else{
+    CBOOT <- suppressWarnings(pbapply::pbreplicate(B, bootstrap(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds)))
+  }
+
+  # Optimist
+  O <- 10^-1 * sum(unlist(CBOOT[1, ]) - unlist(CBOOT[2, ]))
+  # Adjusted Optimist
+  Oadj <- orig_auc - O
+  output <- round(data.frame(Original_AUC = as.numeric(orig_auc), Optimism = O, Validated_AUC = Oadj), 3)
+  return(output)
 }
+
 
 #' Internal bootstraping validation multinomial glmnet model
 #'
@@ -191,7 +229,7 @@ vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores)
 #' @importFrom stats median
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
 #' @export
-vboot.multnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores){
+vboot.multnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores = max(1, parallel::detectCores() - 1)){
     orig_predict <- glmnet::predict.multnet(glmnet_fit, newx = x, s = s, type = "class")
     orig_auc <- pROC::multiclass.roc(y, as.numeric(as.factor(orig_predict)))$auc
 
@@ -245,10 +283,13 @@ vboot.multnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores
 #' @param cv_replicates Number of replicates for the cross-validation step
 #' @param n_cores number of cores to use in parallel. Default detectCores()-1
 #' @references Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). Regularization Paths for Generalized Linear Models via Coordinate Descent. Journal of Statistical Software, 33(1), 1-22. URL http://www.jstatsoft.org/v33/i01/.
-#' @references Frank Harrell (2015). Harrell Jr, F. E. (2015). Regression modeling strategies: with applications to linear models, logistic and ordinal regression, and survival analysis. Springer.
+#' @references Noah Simon, Jerome Friedman, Trevor Hastie, Rob Tibshirani (2011). Regularization Paths for Cox's Proportional Hazards Model via Coordinate Descent. Journal of Statistical Software, 39(5), 1-13. URL http://www.jstatsoft.org/v39/i05/.
+#' @references Harrell Jr, F. E. (2015). Regression modeling strategies: with applications to linear models, logistic and ordinal regression, and survival analysis. Springer.
+#' @references Gordon C.S. Smith, Shaun R. Seaman, Angela M. Wood, Patrick Royston, Ian R. White (2014). Correcting for Optimistic Prediction in Small Data Sets, American Journal of Epidemiology, Volume 180, Issue 3, 1 August 2014, Pages 318-324, https://doi.org/10.1093/aje/kwu140
 #' @importFrom glmnet cv.glmnet glmnet predict.glmnet predict.multnet
 #' @importFrom pROC roc multiclass.roc
-#' @importFrom survAUC AUC.cd
+#' @importFrom risksetROC CoxWeights IntegrateAUC
+#' @importFrom survival survfit Surv
 #' @importFrom pbapply pbreplicate
 #' @importFrom stats median var
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
@@ -264,7 +305,6 @@ vboot.multnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores
 #' vboot(fit_enet, x, y, nfolds = 3, B = 2, s = 0.5, cv_replicates = 5, n_cores = 1)
 
 vboot <- function(glmnet_fit, x, y, s, nfolds = 5, B = 200, cv_replicates = 100, n_cores = max(1, parallel::detectCores() - 1)){
-    n_cores <- max(1, n_cores)
     UseMethod("vboot")
 }
 

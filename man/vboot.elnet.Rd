@@ -4,7 +4,8 @@
 \alias{vboot.elnet}
 \title{Internal bootstraping validation lineal glmnet model}
 \usage{
-\method{vboot}{elnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores)
+\method{vboot}{elnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates,
+  n_cores = max(1, parallel::detectCores() - 1))
 }
 \arguments{
 \item{glmnet_fit}{Object from glmnet fit}

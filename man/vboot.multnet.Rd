@@ -4,7 +4,8 @@
 \alias{vboot.multnet}
 \title{Internal bootstraping validation multinomial glmnet model}
 \usage{
-\method{vboot}{multnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores)
+\method{vboot}{multnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates,
+  n_cores = max(1, parallel::detectCores() - 1))
 }
 \arguments{
 \item{glmnet_fit}{Object from glmnet fit}
