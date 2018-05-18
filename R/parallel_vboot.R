@@ -187,7 +187,7 @@ vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores 
       AUCc[j] <- out$AUC
     }
     ## integrated AUC to get concordance measure
-    Cb_orig  <- risksetROC::IntegrateAUC( AUCc, utimes, surv.probc, tmax=5000)
+    Cb_orig  <- risksetROC::IntegrateAUC( AUCc, utimes, surv.probc, tmax=Inf)
 
     return(list(Cb_boot = Cb_boot, Cb_orig = Cb_orig))
   }
