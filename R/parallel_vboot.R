@@ -133,7 +133,6 @@ vboot.elnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores =
 #' @importFrom parallel parSapply makeCluster detectCores clusterExport stopCluster
 #' @export
 vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores = max(1, parallel::detectCores() - 1)){
-  if(class(y) %in% "Surv") stop("vboot requires a matrix with colums 'time' and 'status' as a response")
   orig_predict <- glmnet::predict.coxnet(glmnet_fit, newx = x, s = s, type = "link")
   surv.prob <- unique(survival::survfit(survival::Surv(y[,1], y[,2])~1)$surv)
   utimes <- unique( y[,1][ y[,2] == 1 ])
@@ -146,7 +145,7 @@ vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores 
     AUC[j] <- out$AUC
   }
   ## integrated AUC to get concordance measure
-  orig_auc <- risksetROC::IntegrateAUC( AUC, utimes, surv.prob, tmax=5000)
+  orig_auc <- risksetROC::IntegrateAUC( AUC, utimes, surv.prob, tmax=Inf)
 
   # Making index to bootstrap
   bootstrap <- function(x, y, alpha = glmnet_fit$call$alpha, nfolds = nfolds, B = B){
