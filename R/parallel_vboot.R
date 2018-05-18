@@ -171,7 +171,7 @@ vboot.coxnet <- function(glmnet_fit, x, y, s, nfolds, B, cv_replicates, n_cores 
       AUCb[j] <- out$AUC
     }
     ## integrated AUC to get concordance measure
-    Cb_boot  <- risksetROC::IntegrateAUC( AUCb, utimes, surv.probb, tmax=5000)
+    Cb_boot  <- risksetROC::IntegrateAUC( AUCb, utimes, surv.probb, tmax=Inf)
 
     # fit bootstrap model to the original dataset
     bootorig_predict <-  glmnet::predict.coxnet(boot_fit, newx = x, s = l, type = "link")
