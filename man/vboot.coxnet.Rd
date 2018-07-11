@@ -4,11 +4,11 @@
 \alias{vboot.coxnet}
 \title{Internal bootstraping validation cox glmnet model}
 \usage{
-\method{vboot}{coxnet}(glmnet_fit, x, y, s, nfolds, B, cv_replicates,
-  n_cores = max(1, parallel::detectCores() - 1))
+\method{vboot}{coxnet}(fit, x, y, s, nfolds = 5, B = 200,
+  cv_replicates = 100, n_cores = max(1, parallel::detectCores() - 1))
 }
 \arguments{
-\item{glmnet_fit}{Object from glmnet fit}
+\item{fit}{Object from glmnet fit}
 
 \item{x}{A matrix of the predictors, each row is an observation vector.}
 
