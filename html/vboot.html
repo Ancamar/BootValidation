@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generic function for bootstrap validation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vboot {BootValidation}"><tr><td>vboot {BootValidation}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generic function for bootstrap validation</h2>
+
+<h3>Description</h3>
+
+<p>Validate 'glmnet' linear, logistic or cox regression using bootstrap.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vboot(fit, x, y, s, nfolds = 5, B = 200, cv_replicates = 100,
+  n_cores = max(1, parallel::detectCores() - 1))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fit</code></td>
+<td>
+<p>Object from glmnet fit</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A matrix of the predictors, each row is an observation vector.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>A vector of response variable. It should be quantitative for lineal regression, a factor with two levels for logistic regression or a two-column matrix with columns named 'time' and 'status' for cox regression.</p>
+</td></tr>
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>Value of the penalty parameter &quot;lambda&quot; selected from the original 'cv.glmnet'.</p>
+</td></tr>
+<tr valign="top"><td><code>nfolds</code></td>
+<td>
+<p>Number of folds for cross validation as in 'cv.glmnet'.</p>
+</td></tr>
+<tr valign="top"><td><code>B</code></td>
+<td>
+<p>Number of bootsrap samples</p>
+</td></tr>
+<tr valign="top"><td><code>cv_replicates</code></td>
+<td>
+<p>Number of replicates for the cross-validation step</p>
+</td></tr>
+<tr valign="top"><td><code>n_cores</code></td>
+<td>
+<p>number of cores to use in parallel. Default detectCores()-1</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p>Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). Regularization Paths for Generalized Linear Models via Coordinate Descent. Journal of Statistical Software, 33(1), 1-22. URL http://www.jstatsoft.org/v33/i01/.
+</p>
+<p>Noah Simon, Jerome Friedman, Trevor Hastie, Rob Tibshirani (2011). Regularization Paths for Cox's Proportional Hazards Model via Coordinate Descent. Journal of Statistical Software, 39(5), 1-13. URL http://www.jstatsoft.org/v39/i05/.
+</p>
+<p>Harrell Jr, F. E. (2015). Regression modeling strategies: with applications to linear models, logistic and ordinal regression, and survival analysis. Springer.
+</p>
+<p>Gordon C.S. Smith, Shaun R. Seaman, Angela M. Wood, Patrick Royston, Ian R. White (2014). Correcting for Optimistic Prediction in Small Data Sets, American Journal of Epidemiology, Volume 180, Issue 3, 1 August 2014, Pages 318-324, https://doi.org/10.1093/aje/kwu140
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create the data
+set.seed(25)
+x &lt;- matrix(rnorm(80),ncol=4)
+y &lt;- x[,4]*0.8+x[,3]*0.4+rnorm(20)
+# Fit glmnet model
+fit_enet &lt;- glmnet::glmnet(x, y, alpha = 0.5)
+# Bootstrap validation
+vboot(fit_enet, x, y, nfolds = 3, B = 2, s = 0.5, cv_replicates = 5, n_cores = 1)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>BootValidation</em> version 0.1.65 <a href="00Index.html">Index</a>]</div>
+</body></html>

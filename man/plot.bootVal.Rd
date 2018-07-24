@@ -4,12 +4,15 @@
 \alias{plot.bootVal}
 \title{Plot for repeat_cv results}
 \usage{
-\method{plot}{bootVal}(x, n = length(unique(unlist(x$varImportance))), ...)
+\method{plot}{bootVal}(x, order = TRUE,
+  n = length(unique(unlist(x$varImportance))), ...)
 }
 \arguments{
 \item{x}{A vboot object}
 
-\item{n}{variables to be displayed}
+\item{order}{order plot by importance}
+
+\item{n}{Variables to be displayed}
 
 \item{...}{further arguments passed to plot}
 }

@@ -1,7 +1,7 @@
 [![CRAN](https://www.r-pkg.org/badges/version/BootValidation)](https://cran.r-project.org/web/packages/BootValidation/index.html)
 
 # BootValidation
-This package provides internal bootstrap validation for linear, logistic, cox and multinomial 'glmnet' models as well as lm and glm models.
+This package provides internal bootstrap validation for lineal, logistic, cox and multinomial 'glmnet' models, as well as lm and glm (binomial) regression.
 
 ## Usage
 ```
@@ -57,4 +57,4 @@ The following example applies internal bootstrap validation on `glmnet` logistic
 
 # Further lines
 
-`BootValidation` package is still on development.
+`BootValidation` package is still on development. The next aim is to set new features to vboot function like internal validation for non penalized regressions.

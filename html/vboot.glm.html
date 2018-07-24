@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Internal bootstraping validation logistic model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vboot.glm {BootValidation}"><tr><td>vboot.glm {BootValidation}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Internal bootstraping validation logistic model</h2>
+
+<h3>Description</h3>
+
+<p>Validate logistic regression using bootstrap.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'glm'
+vboot(fit, x = NULL, y = NULL, s = NULL, nfolds = NULL,
+  B = 200, cv_replicates = NULL, n_cores = max(1, parallel::detectCores()
+  - 1))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fit</code></td>
+<td>
+<p>Object from glm fit</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A matrix of the predictors, each row is an observation vector.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>A vector of response variable. It should be quantitative for lineal regression, a factor with two levels for logistic regression or a two-column matrix with columns named 'time' and 'status' for cox regression.</p>
+</td></tr>
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>Value of the penalty parameter &quot;lambda&quot; selected from the original 'cv.glmnet'.</p>
+</td></tr>
+<tr valign="top"><td><code>nfolds</code></td>
+<td>
+<p>Number of folds for cross validation as in 'cv.glmnet'.</p>
+</td></tr>
+<tr valign="top"><td><code>B</code></td>
+<td>
+<p>Number of bootsrap samples</p>
+</td></tr>
+<tr valign="top"><td><code>cv_replicates</code></td>
+<td>
+<p>Number of replicates for the cross-validation step</p>
+</td></tr>
+<tr valign="top"><td><code>n_cores</code></td>
+<td>
+<p>number of cores to use in parallel. Default detectCores()-1</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>BootValidation</em> version 0.1.65 <a href="00Index.html">Index</a>]</div>
+</body></html>

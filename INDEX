@@ -1,0 +1,13 @@
+plot.bootVal            Plot for repeat_cv results
+print.bootVal           Print function
+vboot                   Generic function for bootstrap validation
+vboot.coxnet            Internal bootstraping validation cox glmnet
+                        model
+vboot.elnet             Internal bootstraping validation linear glmnet
+                        model
+vboot.glm               Internal bootstraping validation logistic model
+vboot.lm                Internal bootstraping validation linear model
+vboot.lognet            Internal bootstraping validation logistic
+                        glmnet model
+vboot.multnet           Internal bootstraping validation multinomial
+                        glmnet model

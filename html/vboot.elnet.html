@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Internal bootstraping validation linear glmnet model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vboot.elnet {BootValidation}"><tr><td>vboot.elnet {BootValidation}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Internal bootstraping validation linear glmnet model</h2>
+
+<h3>Description</h3>
+
+<p>Validate glmnet linear regression using bootstrap.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'elnet'
+vboot(fit, x, y, s, nfolds = 5, B = 200,
+  cv_replicates = 100, n_cores = max(1, parallel::detectCores() - 1))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fit</code></td>
+<td>
+<p>Object from glmnet fit</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A matrix of the predictors, each row is an observation vector.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>A vector of response variable. Should be numeric</p>
+</td></tr>
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>Value of the penalty parameter &quot;lambda&quot; selected from the original 'cv.glmnet'</p>
+</td></tr>
+<tr valign="top"><td><code>nfolds</code></td>
+<td>
+<p>Number of folds for cross validation as in 'cv.glmnet'</p>
+</td></tr>
+<tr valign="top"><td><code>B</code></td>
+<td>
+<p>Number of bootsrap samples</p>
+</td></tr>
+<tr valign="top"><td><code>cv_replicates</code></td>
+<td>
+<p>Number of replicates for the cross-validation step</p>
+</td></tr>
+<tr valign="top"><td><code>n_cores</code></td>
+<td>
+<p>number of cores to use in parallel. Default detectCores()-1</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>BootValidation</em> version 0.1.65 <a href="00Index.html">Index</a>]</div>
+</body></html>
