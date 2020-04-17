@@ -4,9 +4,17 @@
 \alias{vboot.lm}
 \title{Internal bootstraping validation linear model}
 \usage{
-\method{vboot}{lm}(fit, x = NULL, y = NULL, s = NULL, nfolds = NULL,
-  B = 200, cv_replicates = NULL, n_cores = max(1, parallel::detectCores()
-  - 1))
+\method{vboot}{lm}(
+  fit,
+  x = NULL,
+  y = NULL,
+  s = NULL,
+  gamma = NULL,
+  nfolds = NULL,
+  B = 200,
+  cv_replicates = NULL,
+  n_cores = max(1, parallel::detectCores() - 1)
+)
 }
 \arguments{
 \item{fit}{Object from lm fit}
@@ -16,6 +24,8 @@
 \item{y}{A vector of response variable. It should be quantitative for lineal regression, a factor with two levels for logistic regression or a two-column matrix with columns named 'time' and 'status' for cox regression.}
 
 \item{s}{Value of the penalty parameter "lambda" selected from the original 'cv.glmnet'.}
+
+\item{gamma}{Value of "gamma" parameter selected for relaxed model}
 
 \item{nfolds}{Number of folds for cross validation as in 'cv.glmnet'.}
 

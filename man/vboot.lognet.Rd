@@ -4,8 +4,17 @@
 \alias{vboot.lognet}
 \title{Internal bootstraping validation logistic glmnet model}
 \usage{
-\method{vboot}{lognet}(fit, x, y, s, nfolds = 5, B = 200,
-  cv_replicates = 100, n_cores = max(1, parallel::detectCores() - 1))
+\method{vboot}{lognet}(
+  fit,
+  x,
+  y,
+  s,
+  gamma = NULL,
+  nfolds = 5,
+  B = 200,
+  cv_replicates = 100,
+  n_cores = max(1, parallel::detectCores() - 1)
+)
 }
 \arguments{
 \item{fit}{Object from glmnet fit}
@@ -15,6 +24,8 @@
 \item{y}{A vector of response variable. Should be a factor with two levels}
 
 \item{s}{Value of the penalty parameter "lambda" selected from the original 'cv.glmnet'}
+
+\item{gamma}{Value of "gamma" parameter selected for relaxed model}
 
 \item{nfolds}{Number of folds for cross validation as in cv.glmnet}
 

@@ -4,8 +4,7 @@
 \alias{plot.bootVal}
 \title{Plot for repeat_cv results}
 \usage{
-\method{plot}{bootVal}(x, order = TRUE,
-  n = length(unique(unlist(x$varImportance))), ...)
+\method{plot}{bootVal}(x, order = TRUE, n = length(unique(unlist(x$varImportance))), ...)
 }
 \arguments{
 \item{x}{A vboot object}

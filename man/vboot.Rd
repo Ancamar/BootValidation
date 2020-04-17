@@ -4,8 +4,17 @@
 \alias{vboot}
 \title{Generic function for bootstrap validation}
 \usage{
-vboot(fit, x, y, s, nfolds = 5, B = 200, cv_replicates = 100,
-  n_cores = max(1, parallel::detectCores() - 1))
+vboot(
+  fit,
+  x,
+  y,
+  s,
+  gamma = FALSE,
+  nfolds = 5,
+  B = 200,
+  cv_replicates = 100,
+  n_cores = max(1, parallel::detectCores() - 1)
+)
 }
 \arguments{
 \item{fit}{Object from glmnet fit}
@@ -15,6 +24,8 @@ vboot(fit, x, y, s, nfolds = 5, B = 200, cv_replicates = 100,
 \item{y}{A vector of response variable. It should be quantitative for lineal regression, a factor with two levels for logistic regression or a two-column matrix with columns named 'time' and 'status' for cox regression.}
 
 \item{s}{Value of the penalty parameter "lambda" selected from the original 'cv.glmnet'.}
+
+\item{gamma}{Value of "gamma" parameter selected for relaxed model}
 
 \item{nfolds}{Number of folds for cross validation as in 'cv.glmnet'.}
 
